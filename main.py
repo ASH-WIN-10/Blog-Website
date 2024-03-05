@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, session
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,12 +10,15 @@ from datetime import date
 from functools import wraps
 from hashlib import md5
 import os
+from flask_session import Session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "nDMRiF6HVdjyOjuPl63bPf")
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['REMEMBER_COOKIE_SECURE'] = True
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -128,6 +131,7 @@ def login():
             print(check_password_hash(user.password, form.password.data))
             if check_password_hash(user.password, form.password.data):
                 login_user(user)
+                session['user_id'] = user.id
                 return redirect(url_for('get_all_posts'))
             else:
                 flash("Password is incorrect, please try again.")
@@ -144,6 +148,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('get_all_posts'))
 
 
