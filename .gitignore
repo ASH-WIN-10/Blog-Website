@@ -3,3 +3,4 @@ instance
 __pycache__
 tempCodeRunnerFile.py
 Procfile
+flask_session
